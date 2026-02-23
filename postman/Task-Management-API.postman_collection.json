@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "Task Management API",
+    "description": "Users + Tasks endpoints (challenge Puul)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "taskId", "value": "" },
+    { "key": "userId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"María García\",\n  \"email\": \"maria@ejemplo.com\",\n  \"role\": \"member\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] },
+            "description": "Create user. Role: member | administrator"
+          }
+        },
+        {
+          "name": "List all users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] },
+            "description": "List users with finishedTasksCount and totalFinishedTasksCost"
+          }
+        },
+        {
+          "name": "List users (filter by name)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?name=maría",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [{ "key": "name", "value": "maría" }]
+            }
+          }
+        },
+        {
+          "name": "List users (filter by email)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?email=@ejemplo.com",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [{ "key": "email", "value": "@ejemplo.com" }]
+            }
+          }
+        },
+        {
+          "name": "List users (filter by role)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?role=member",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [{ "key": "role", "value": "member" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Create task",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Implementar login\",\n  \"description\": \"Pantalla de login con email y contraseña\",\n  \"estimatedHours\": 8,\n  \"dueDate\": \"2026-03-01T18:00:00.000Z\",\n  \"status\": \"active\",\n  \"cost\": 1500.5,\n  \"assigneeIds\": []\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] },
+            "description": "Create task. assigneeIds = array of user UUIDs. status: active | finished."
+          }
+        },
+        {
+          "name": "List all tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] },
+            "description": "List tasks, newest first. Optional query params for filters."
+          }
+        },
+        {
+          "name": "List tasks (filter by dueDate)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?dueDate=2026-03-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [{ "key": "dueDate", "value": "2026-03-01" }]
+            }
+          }
+        },
+        {
+          "name": "List tasks (filter by title)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?title=login",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [{ "key": "title", "value": "login" }]
+            }
+          }
+        },
+        {
+          "name": "List tasks (filter by assigneeId)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?assigneeId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [{ "key": "assigneeId", "value": "{{userId}}", "description": "User UUID" }]
+            }
+          }
+        },
+        {
+          "name": "List tasks (filter by assignee name/email)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?assigneeName=maría&assigneeEmail=maria@",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [
+                { "key": "assigneeName", "value": "maría" },
+                { "key": "assigneeEmail", "value": "maria@" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update task",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Implementar login (actualizado)\",\n  \"estimatedHours\": 10,\n  \"status\": \"finished\",\n  \"assigneeIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "Update any task fields. Send only fields to change. assigneeIds replaces assignees."
+          }
+        },
+        {
+          "name": "Delete task",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            }
+          }
+        },
+        {
+          "name": "Tasks analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "analytics"]
+            },
+            "description": "Two statistics (e.g. tasks by status, total cost, etc.)"
+          }
+        }
+      ]
+    }
+  ]
+}

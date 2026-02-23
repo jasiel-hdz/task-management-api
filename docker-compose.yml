@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+  pgsql:
+    image: postgres:16-alpine
+    container_name: pgsql
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+      TZ: "America/Mexico_City"
+      PGTZ: "America/Mexico_City"
+    ports:
+      - 5434:5432
+    volumes:
+      - ./pgsql_container:/var/lib/postgresql/data
+    networks:
+      - vino_fresco
+
+  # API (uncomment to run the app inside Docker; otherwise run: npm run start:dev)
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: task-management-api
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     DB_HOST: pgsql
+  #     DB_PORT: 5432
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - pgsql
+  #   networks:
+  #     - vino_fresco
+
+networks:
+  vino_fresco:

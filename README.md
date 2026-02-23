@@ -97,3 +97,76 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 # task-management-api
+
+### This is the structure of the project, but it is not complete yet.
+src/
+│
+├── main.ts
+├── app.module.ts
+│
+├── config/
+│   ├── database.config.ts
+│   ├── jwt.config.ts
+│   └── env.config.ts
+│
+├── common/
+│   ├── enums/
+│   │   ├── user-role.enum.ts
+│   │   └── task-status.enum.ts
+│   │
+│   ├── decorators/
+│   │   └── current-user.decorator.ts
+│   │
+│   ├── guards/
+│   │   └── jwt-auth.guard.ts
+│   │
+│   ├── filters/
+│   │   └── http-exception.filter.ts
+│   │
+│   ├── interceptors/
+│   │
+│   └── interfaces/
+│
+├── modules/
+│
+│   ├── auth/
+│   │   ├── auth.module.ts
+│   │   ├── auth.controller.ts
+│   │   ├── auth.service.ts
+│   │   │
+│   │   ├── strategies/
+│   │   │   └── jwt.strategy.ts
+│   │   │
+│   │   └── dto/
+│   │       └── login.dto.ts
+│   │
+│   ├── users/
+│   │   ├── users.module.ts
+│   │   ├── users.controller.ts
+│   │   ├── users.service.ts
+│   │   │
+│   │   ├── entities/
+│   │   │   └── user.entity.ts
+│   │   │
+│   │   └── dto/
+│   │       ├── create-user.dto.ts
+│   │       └── query-users.dto.ts
+│   │
+│   ├── tasks/
+│   │   ├── tasks.module.ts
+│   │   ├── tasks.controller.ts
+│   │   ├── tasks.service.ts
+│   │   │
+│   │   ├── entities/
+│   │   │   └── task.entity.ts
+│   │   │
+│   │   └── dto/
+│   │       ├── create-task.dto.ts
+│   │       ├── update-task.dto.ts
+│   │       └── query-tasks.dto.ts
+│
+├── database/
+│   ├── database.module.ts
+│   └── migrations/
+│
+└── utils/
