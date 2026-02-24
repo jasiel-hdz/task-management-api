@@ -1,172 +1,135 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Task Management API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+REST API for team task management. Users can be created with roles (administrator or member); tasks support multiple assignees, due dates, estimated/actual hours, status (active/finished), and cost. The API uses JWT authentication and role-based access for protected routes.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Built with **NestJS**, **TypeScript**, and **PostgreSQL**.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Features
 
-## Project setup
+- **Auth:** Login with email/password; JWT issued for protected endpoints.
+- **Users:** Create (admin only) and list users with filters (name, email, role). List response includes each user’s finished task count and total cost of finished tasks.
+- **Tasks:** Full CRUD; assign multiple users; filters (title, due date, assignee by id/name/email); order by newest first. Dedicated endpoints to update task time and status. Analytics: total tasks, completed tasks, total cost.
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## Tech stack
 
-```bash
-# development
-$ npm run start
+- Node.js
+- NestJS
+- TypeScript
+- PostgreSQL (Docker)
+- Passport (JWT + local strategies), bcrypt
 
-# watch mode
-$ npm run start:dev
+---
 
-# production mode
-$ npm run start:prod
-```
+## Getting started
 
-## Run tests
+### Prerequisites
+
+- Node.js (v18+)
+- Docker and Docker Compose
+- npm
+
+### 1. Environment
+
+Copy the example env file and set your values:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cp .env.example .env
 ```
 
-## Deployment
+Configure at least `DB_*` and `JWT_SECRET`. Optionally set `ADMIN_EMAIL` and `ADMIN_PASSWORD` to auto-create an admin user on first run.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### 2. Database
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Start PostgreSQL:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The database is exposed on port **5434** on the host. Use `DB_HOST=localhost` and `DB_PORT=5434` in `.env` (see `.env.example`).
 
-## Resources
+### 3. Run the API
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm install
+npm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+When the app is ready, the API is available at **http://localhost:3000**.
 
-## Support
+If `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set in `.env`, the first time the API starts it creates an administrator with that email and password (if it does not already exist).
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 4. Authentication
 
-## Stay in touch
+Most endpoints require a JWT. Log in first:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **POST** `http://localhost:3000/auth/login`
+- Body: `{ "email": "your-admin@example.com", "password": "your-password" }`
+- Response: `{ "access_token": "..." }`
+- Use the token in the header: `Authorization: Bearer <access_token>`
+
+---
+
+## API overview
+
+| Resource   | Method | Path               | Description |
+|-----------|--------|--------------------|-------------|
+| Auth      | POST   | `/auth/login`      | Login; returns `access_token` |
+| Users     | POST   | `/users`           | Create user (admin only). Body: name, email, password, role |
+| Users     | GET    | `/users`           | List users. Query: `name`, `email`, `role` |
+| Tasks     | POST   | `/tasks`           | Create task (admin). Body: title, description, estimatedHours, dueDate, status, cost, assigneeIds |
+| Tasks     | GET    | `/tasks`           | List tasks (newest first). Query: `title`, `dueDate`, `assigneeId`, `assigneeName`, `assigneeEmail` |
+| Tasks     | GET    | `/tasks/:id`       | Get one task |
+| Tasks     | PUT    | `/tasks/:id`       | Full update (admin) |
+| Tasks     | PATCH  | `/tasks/:id`       | Partial update (admin) |
+| Tasks     | PATCH  | `/tasks/:id/time`  | Update actual hours (member or admin) |
+| Tasks     | PATCH  | `/tasks/:id/status`| Update status (member or admin) |
+| Tasks     | DELETE | `/tasks/:id`       | Delete task (admin) |
+| Tasks     | GET    | `/tasks/analytics` | Analytics: totalTasks, completedTasks, totalCost (admin) |
+
+A Postman collection is available in **`postman/Task-Management-API.postman_collection.json`**. Import it and set `baseUrl` to `http://localhost:3000`. After **Login**, the token is saved automatically and used in the other requests.
+
+---
+
+## Database
+
+There are no manual migrations. In development, TypeORM creates/updates the schema from entities when the API starts. For production, consider using migrations and disabling `synchronize`.
+
+---
+
+## Scripts
+
+```bash
+npm run start:dev    # development with watch
+npm run start:prod   # production
+npm run test         # unit tests
+npm run test:e2e     # e2e tests
+npm run test:cov     # coverage
+```
+
+---
+
+## Project structure
+
+```
+src/
+├── main.ts
+├── app.module.ts
+├── config/
+├── common/        # enums, guards, decorators
+├── database/
+└── modules/
+    ├── auth/      # login, JWT strategies
+    ├── users/     # users CRUD, filters, per-user metrics
+    └── tasks/     # tasks CRUD, assignments, filters, analytics
+```
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-# task-management-api
-
-### This is the structure of the project, but it is not complete yet.
-src/
-│
-├── main.ts
-├── app.module.ts
-│
-├── config/
-│   ├── database.config.ts
-│   ├── jwt.config.ts
-│   └── env.config.ts
-│
-├── common/
-│   ├── enums/
-│   │   ├── user-role.enum.ts
-│   │   └── task-status.enum.ts
-│   │
-│   ├── decorators/
-│   │   └── current-user.decorator.ts
-│   │
-│   ├── guards/
-│   │   └── jwt-auth.guard.ts
-│   │
-│   ├── filters/
-│   │   └── http-exception.filter.ts
-│   │
-│   ├── interceptors/
-│   │
-│   └── interfaces/
-│
-├── modules/
-│
-│   ├── auth/
-│   │   ├── auth.module.ts
-│   │   ├── auth.controller.ts
-│   │   ├── auth.service.ts
-│   │   │
-│   │   ├── strategies/
-│   │   │   └── jwt.strategy.ts
-│   │   │
-│   │   └── dto/
-│   │       └── login.dto.ts
-│   │
-│   ├── users/
-│   │   ├── users.module.ts
-│   │   ├── users.controller.ts
-│   │   ├── users.service.ts
-│   │   │
-│   │   ├── entities/
-│   │   │   └── user.entity.ts
-│   │   │
-│   │   └── dto/
-│   │       ├── create-user.dto.ts
-│   │       └── query-users.dto.ts
-│   │
-│   ├── tasks/
-│   │   ├── tasks.module.ts
-│   │   ├── tasks.controller.ts
-│   │   ├── tasks.service.ts
-│   │   │
-│   │   ├── entities/
-│   │   │   └── task.entity.ts
-│   │   │
-│   │   └── dto/
-│   │       ├── create-task.dto.ts
-│   │       ├── update-task.dto.ts
-│   │       └── query-tasks.dto.ts
-│
-├── database/
-│   ├── database.module.ts
-│   └── migrations/
-│
-└── utils/
+MIT.

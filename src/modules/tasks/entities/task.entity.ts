@@ -2,16 +2,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToMany,
+  OneToMany,
   CreateDateColumn,
 } from 'typeorm';
 import { TaskStatus } from '../../../common/enums/task-status.enum';
-import { User } from '../../users/entities/user.entity';
+import { UserTask } from './user-task.entity';
 
-/**
- * Task entity. Minimal fields here for User->Task relation and aggregates.
- * Full task fields (title, description, estimatedHours, dueDate, cost, etc.) will be added when implementing the tasks module.
- */
+/** Task entity. Users via UserTask join (OneToMany). */
 @Entity('tasks')
 export class Task {
   @PrimaryGeneratedColumn('uuid')
@@ -26,6 +23,9 @@ export class Task {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   estimatedHours: number;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  actualHours: number;
+
   @Column({ type: 'timestamptz', nullable: true })
   dueDate: Date | null;
 
@@ -35,8 +35,8 @@ export class Task {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   cost: number;
 
-  @ManyToMany(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })
-  assignees: User[];
+  @OneToMany(() => UserTask, (userTask) => userTask.task, { cascade: true })
+  userTasks: UserTask[];
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

@@ -1,7 +1,4 @@
-/**
- * User role within the team.
- * Used for authorization and filtering in list users.
- */
+/** User role for authorization and filters. */
 export enum UserRole {
   MEMBER = 'member',
   ADMINISTRATOR = 'administrator',

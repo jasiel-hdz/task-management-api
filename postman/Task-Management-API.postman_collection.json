@@ -1,45 +1,81 @@
 {
   "info": {
     "name": "Task Management API",
-    "description": "Users + Tasks endpoints (challenge Puul)",
+    "description": "Auth + Users + Tasks. Set {{token}} after POST /auth/login (Bearer JWT).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" },
     { "key": "taskId", "value": "" },
     { "key": "userId", "value": "" }
   ],
   "item": [
     {
-      "name": "Users",
+      "name": "Auth",
       "item": [
         {
-          "name": "Create user",
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json && json.access_token) {",
+                  "  pm.collectionVariables.set('token', json.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"María García\",\n  \"email\": \"maria@ejemplo.com\",\n  \"role\": \"member\"\n}"
+              "raw": "{\n  \"email\": \"admin@ejemplo.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "description": "Returns { access_token }. The token is saved automatically to {{token}} for the rest of the requests."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create user (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"María García\",\n  \"email\": \"maria@ejemplo.com\",\n  \"password\": \"password123\",\n  \"role\": \"member\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] },
-            "description": "Create user. Role: member | administrator"
+            "description": "JWT + ADMIN. Role: member | administrator."
           }
         },
         {
           "name": "List all users",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] },
-            "description": "List users with finishedTasksCount and totalFinishedTasksCost"
+            "description": "JWT. Includes finishedTasksCount, totalFinishedTasksCost."
           }
         },
         {
           "name": "List users (filter by name)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users?name=maría",
               "host": ["{{baseUrl}}"],
@@ -52,7 +88,7 @@
           "name": "List users (filter by email)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users?email=@ejemplo.com",
               "host": ["{{baseUrl}}"],
@@ -65,7 +101,7 @@
           "name": "List users (filter by role)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/users?role=member",
               "host": ["{{baseUrl}}"],
@@ -80,104 +116,52 @@
       "name": "Tasks",
       "item": [
         {
-          "name": "Create task",
+          "name": "Create task (ADMIN)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Implementar login\",\n  \"description\": \"Pantalla de login con email y contraseña\",\n  \"estimatedHours\": 8,\n  \"dueDate\": \"2026-03-01T18:00:00.000Z\",\n  \"status\": \"active\",\n  \"cost\": 1500.5,\n  \"assigneeIds\": []\n}"
+              "raw": "{\n  \"title\": \"Implementar login\",\n  \"description\": \"Pantalla de login\",\n  \"estimatedHours\": 8,\n  \"dueDate\": \"2026-03-01T18:00:00.000Z\",\n  \"status\": \"active\",\n  \"cost\": 1500.5,\n  \"assigneeIds\": []\n}"
             },
             "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] },
-            "description": "Create task. assigneeIds = array of user UUIDs. status: active | finished."
+            "description": "JWT + ADMIN. assigneeIds = user UUIDs."
           }
         },
         {
           "name": "List all tasks",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] },
-            "description": "List tasks, newest first. Optional query params for filters."
+            "description": "JWT. Newest first. Optional: title, dueDate, assigneeId, assigneeName, assigneeEmail."
           }
         },
         {
-          "name": "List tasks (filter by dueDate)",
+          "name": "List tasks (filters)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/tasks?dueDate=2026-03-01",
-              "host": ["{{baseUrl}}"],
-              "path": ["tasks"],
-              "query": [{ "key": "dueDate", "value": "2026-03-01" }]
-            }
-          }
-        },
-        {
-          "name": "List tasks (filter by title)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/tasks?title=login",
-              "host": ["{{baseUrl}}"],
-              "path": ["tasks"],
-              "query": [{ "key": "title", "value": "login" }]
-            }
-          }
-        },
-        {
-          "name": "List tasks (filter by assigneeId)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/tasks?assigneeId={{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["tasks"],
-              "query": [{ "key": "assigneeId", "value": "{{userId}}", "description": "User UUID" }]
-            }
-          }
-        },
-        {
-          "name": "List tasks (filter by assignee name/email)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/tasks?assigneeName=maría&assigneeEmail=maria@",
+              "raw": "{{baseUrl}}/tasks?title=login&dueDate=2026-03-01&assigneeId={{userId}}",
               "host": ["{{baseUrl}}"],
               "path": ["tasks"],
               "query": [
-                { "key": "assigneeName", "value": "maría" },
-                { "key": "assigneeEmail", "value": "maria@" }
+                { "key": "title", "value": "login" },
+                { "key": "dueDate", "value": "2026-03-01" },
+                { "key": "assigneeId", "value": "{{userId}}" }
               ]
             }
           }
         },
         {
-          "name": "Update task",
+          "name": "Get task by id",
           "request": {
-            "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Implementar login (actualizado)\",\n  \"estimatedHours\": 10,\n  \"status\": \"finished\",\n  \"assigneeIds\": []\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/tasks/{{taskId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["tasks", "{{taskId}}"]
-            },
-            "description": "Update any task fields. Send only fields to change. assigneeIds replaces assignees."
-          }
-        },
-        {
-          "name": "Delete task",
-          "request": {
-            "method": "DELETE",
-            "header": [],
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}",
               "host": ["{{baseUrl}}"],
@@ -186,16 +170,102 @@
           }
         },
         {
-          "name": "Tasks analytics",
+          "name": "Update task (ADMIN) PUT",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Título actualizado\",\n  \"description\": \"Desc\",\n  \"estimatedHours\": 10,\n  \"dueDate\": \"2026-03-15T18:00:00.000Z\",\n  \"status\": \"active\",\n  \"cost\": 2000,\n  \"assigneeIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "JWT + ADMIN. Full update."
+          }
+        },
+        {
+          "name": "Update task (ADMIN) PATCH",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Solo título\",\n  \"assigneeIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "JWT + ADMIN. Partial update."
+          }
+        },
+        {
+          "name": "Update task time (MEMBER/ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"actualHours\": 5\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/time",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "time"]
+            },
+            "description": "JWT + MEMBER or ADMIN. actualHours only."
+          }
+        },
+        {
+          "name": "Update task status (MEMBER/ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"finished\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "status"]
+            },
+            "description": "JWT + MEMBER or ADMIN. status: active | finished."
+          }
+        },
+        {
+          "name": "Delete task (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            }
+          }
+        },
+        {
+          "name": "Tasks analytics (ADMIN)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
               "raw": "{{baseUrl}}/tasks/analytics",
               "host": ["{{baseUrl}}"],
               "path": ["tasks", "analytics"]
             },
-            "description": "Two statistics (e.g. tasks by status, total cost, etc.)"
+            "description": "JWT + ADMIN. Returns totalTasks, completedTasks, totalCost."
           }
         }
       ]

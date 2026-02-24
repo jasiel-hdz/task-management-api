@@ -2,10 +2,7 @@ import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { UserRole } from '../../../common/enums/user-role.enum';
 
-/**
- * DTO for listing users with optional filters: name, email, role.
- * All filters are optional and can be combined.
- */
+/** List users: optional filters name, email, role (combinable). */
 export class QueryUsersDto {
   @IsOptional()
   @IsString()

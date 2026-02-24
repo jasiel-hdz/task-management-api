@@ -1,9 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 
-/**
- * Database connection configuration for TypeORM.
- * Uses ConfigService so .env is loaded by ConfigModule before this runs (recommended in NestJS).
- */
+/** TypeORM PostgreSQL connection config. */
 export const getDatabaseConfig = (configService: ConfigService) => ({
   type: 'postgres' as const,
   host: configService.get<string>('DB_HOST', 'localhost'),
