@@ -32,6 +32,9 @@ export class Task {
   @Column({ type: 'enum', enum: TaskStatus, default: TaskStatus.ACTIVE })
   status: TaskStatus;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  completedAt: Date | null;
+
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   cost: number;
 

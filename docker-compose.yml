@@ -18,7 +18,7 @@ services:
     volumes:
       - ./pgsql_container:/var/lib/postgresql/data
     networks:
-      - vino_fresco
+      - task-management-api
 
   # API (uncomment to run the app inside Docker; otherwise run: npm run start:dev)
   # api:
@@ -37,7 +37,7 @@ services:
   #   depends_on:
   #     - pgsql
   #   networks:
-  #     - vino_fresco
+  #     - task-management-api
 
 networks:
-  vino_fresco:
+  task-management-api:

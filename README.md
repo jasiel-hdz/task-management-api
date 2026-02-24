@@ -1,16 +1,20 @@
 # Task Management API
 
-REST API for team task management. Users can be created with roles (administrator or member); tasks support multiple assignees, due dates, estimated/actual hours, status (active/finished), and cost. The API uses JWT authentication and role-based access for protected routes.
+REST API for team task management. Users can be created with roles (administrator or member); tasks support multiple assignees, due dates, estimated/actual hours, status (active/finished), cost, and completion timestamp. The API uses JWT authentication and role-based access; members can only update time and status on tasks assigned to them.
 
 Built with **NestJS**, **TypeScript**, and **PostgreSQL**.
+
+**Postman:** The repo includes a Postman collection (APIs JSON) to import and test all endpoints. File: **`postman/Task-Management-API.postman_collection.json`**. In Postman: Import → Upload that file; then run **Login** and use the rest of the requests (the token is stored automatically).
 
 ---
 
 ## Features
 
-- **Auth:** Login with email/password; JWT issued for protected endpoints.
-- **Users:** Create (admin only) and list users with filters (name, email, role). List response includes each user’s finished task count and total cost of finished tasks.
-- **Tasks:** Full CRUD; assign multiple users; filters (title, due date, assignee by id/name/email); order by newest first. Dedicated endpoints to update task time and status. Analytics: total tasks, completed tasks, total cost.
+- **Auth:** Login with email/password; JWT issued for protected endpoints. Passport (JWT + local strategies).
+- **Users:** Create (admin only) and list users with filters (name, email, role). List response includes each user’s **finished task count** and **total cost of finished tasks**.
+- **Tasks:** Full CRUD; assign multiple users; **due date**, **estimated hours**, **actual hours** (tracked via PATCH `/tasks/:id/time`), **status** (active/finished), **cost**, **completedAt** (set when status becomes finished). List: order by newest first; filters by due date, title, assignee (id, name, or email); filters combinable. **Members can only update time and status for tasks they are assigned to;** admins can update any task.
+- **Analytics:** Total/active/completed tasks, completion rate, overdue tasks, total and average cost, estimated vs actual hours, total assignments, total users, users with assignments, **top user by completed tasks** (with count and cost).
+- **CORS** configurable via `CORS_ORIGIN` (default: allow any origin). **Validation** via global ValidationPipe and DTOs (class-validator). **Admin seed:** if `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set in `.env`, an admin user is created on first API start.
 
 ---
 
@@ -40,7 +44,7 @@ Copy the example env file and set your values:
 cp .env.example .env
 ```
 
-Configure at least `DB_*` and `JWT_SECRET`. Optionally set `ADMIN_EMAIL` and `ADMIN_PASSWORD` to auto-create an admin user on first run.
+Configure at least `DB_*` and `JWT_SECRET`. Optional: `ADMIN_EMAIL` and `ADMIN_PASSWORD` (admin created on first run); `CORS_ORIGIN` (restrict allowed origin; unset = any).
 
 ### 2. Database
 
@@ -86,12 +90,23 @@ Most endpoints require a JWT. Log in first:
 | Tasks     | GET    | `/tasks/:id`       | Get one task |
 | Tasks     | PUT    | `/tasks/:id`       | Full update (admin) |
 | Tasks     | PATCH  | `/tasks/:id`       | Partial update (admin) |
-| Tasks     | PATCH  | `/tasks/:id/time`  | Update actual hours (member or admin) |
-| Tasks     | PATCH  | `/tasks/:id/status`| Update status (member or admin) |
+| Tasks     | PATCH  | `/tasks/:id/time`  | Update actual hours. Member: only if assigned; admin: any. Body: `{ "actualHours": number }` |
+| Tasks     | PATCH  | `/tasks/:id/status`| Update status. Member: only if assigned; admin: any. Body: `{ "status": "active" \| "finished" }` |
 | Tasks     | DELETE | `/tasks/:id`       | Delete task (admin) |
-| Tasks     | GET    | `/tasks/analytics` | Analytics: totalTasks, completedTasks, totalCost (admin) |
+| Tasks     | GET    | `/tasks/analytics` | Analytics (admin). See below. |
 
-A Postman collection is available in **`postman/Task-Management-API.postman_collection.json`**. Import it and set `baseUrl` to `http://localhost:3000`. After **Login**, the token is saved automatically and used in the other requests.
+**Analytics response** (GET `/tasks/analytics`): `totalTasks`, `activeTasks`, `completedTasks`, `completionRate`, `overdueTasks`, `totalCost`, `averageCostPerTask`, `totalEstimatedHours`, `totalActualHours`, `averageActualHoursPerCompletedTask`, `totalAssignments`, `totalUsers`, `usersWithAssignments`, `topUserByCompletedTasks` (userId, userName, userEmail, completedCount, totalCostFromCompleted).
+
+A **Postman collection** (APIs JSON) is included: **`postman/Task-Management-API.postman_collection.json`**. In Postman, go to **Import** → upload this file. The collection uses `baseUrl` = `http://localhost:3000`. Run **Login** first; the token is saved automatically and sent on subsequent requests.
+
+---
+
+## Permissions (summary)
+
+| Role            | Create/update/delete users | Create/update/delete tasks | List users/tasks | Update task time/status | Analytics |
+|-----------------|----------------------------|----------------------------|------------------|--------------------------|-----------|
+| Administrator   | Yes                        | Yes                        | Yes              | Any task                 | Yes       |
+| Member          | No                         | No                         | Yes              | Only assigned tasks      | No        |
 
 ---
 

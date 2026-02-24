@@ -20,7 +20,9 @@ import { TaskAnalytics, TaskWithAssignees } from './interfaces';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
+import { User } from '../users/entities/user.entity';
 
 @Controller('tasks')
 export class TasksController {
@@ -68,8 +70,9 @@ export class TasksController {
   async updateTime(
     @Param('id') id: string,
     @Body() dto: UpdateTaskTimeDto,
+    @CurrentUser() user: User,
   ): Promise<TaskWithAssignees> {
-    return this.tasksService.updateActualHours(id, dto.actualHours);
+    return this.tasksService.updateActualHours(id, dto.actualHours, user);
   }
 
   @Patch(':id/status')
@@ -78,8 +81,9 @@ export class TasksController {
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateTaskStatusDto,
+    @CurrentUser() user: User,
   ): Promise<TaskWithAssignees> {
-    return this.tasksService.updateStatus(id, dto.status);
+    return this.tasksService.updateStatus(id, dto.status, user);
   }
 
   @Patch(':id')
